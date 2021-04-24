@@ -2,8 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:facerecognition/core/database/database.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
 import 'package:facerecognition/core/services/ml_vision_service.dart';
-import 'package:facerecognition/ui/configuration/app_colors.dart';
-import 'package:facerecognition/ui/pages/authentication/scan_card.dart';
+import 'package:facerecognition/ui/pages/scan_card/scan_card_page.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -27,7 +26,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   /// 1 Obtain a list of the available cameras on the device.
   /// 2 loads the face net model
-  _startUp() async {
+  Future<void> _startUp() async {
     _setLoading(true);
 
     List<CameraDescription> cameras = await availableCameras();
@@ -54,22 +53,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: AppColors.transparent,
-          automaticallyImplyLeading: true,
-        ),
-        body: ElevatedButton(
-          child: Text('tap here'),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AppScanCard(
-                          cameraDescription: cameraDescription,
-                        )));
-          },
-        ));
+    return ScanCardPage();
   }
 }

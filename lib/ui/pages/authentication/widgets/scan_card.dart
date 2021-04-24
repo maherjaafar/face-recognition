@@ -95,8 +95,6 @@ class _AppScanCardState extends State<AppScanCard> {
 
       return false;
     } else {
-      imagePath = p.join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
-
       _saving = true;
 
       await Future.delayed(Duration(milliseconds: 500));
