@@ -1,8 +1,6 @@
-import 'package:blinkid_flutter/microblink_scanner.dart';
 import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:flutter/material.dart';
 import "dart:convert";
-import "dart:async";
 
 import 'package:provider/provider.dart';
 
