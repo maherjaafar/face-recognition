@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "873637890410",
+    "project_id": "notional-zephyr-227618",
+    "storage_bucket": "notional-zephyr-227618.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873637890410:android:5a82492bcd068293c73d13",
+        "android_client_info": {
+          "package_name": "com.younes.facerecognition"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "873637890410-s6vbdnms8sdau4rs95671n4h8079to5k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjTvthWfOk2paWj9pvM8hh6-Q7R13ZSMQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "873637890410-s6vbdnms8sdau4rs95671n4h8079to5k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
