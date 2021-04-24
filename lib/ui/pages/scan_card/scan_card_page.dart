@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
 import 'package:facerecognition/ui/widgets/gradient_button.dart';
+import 'package:facerecognition/ui/widgets/progress_dots.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -49,7 +50,7 @@ class _ScanCardPageState extends State<ScanCardPage> {
                   padding: EdgeInsets.symmetric(horizontal: AppMargins.xxxLarge),
                   child: Column(
                     children: [
-                      SizedBox(height: 2 * AppMargins.xxxLarge),
+                      SizedBox(height: AppMargins.xxxLarge),
                       Container(
                         width: width,
                         height: height * 0.3,
@@ -59,9 +60,18 @@ class _ScanCardPageState extends State<ScanCardPage> {
                                 BorderRadius.all(Radius.circular(AppRadius.radiusCircular))),
                         child: Lottie.asset('assets/scan_card.json'),
                       ),
-                      SizedBox(height: AppMargins.xxxLarge),
-                      GradientButton()
+                      SizedBox(height: 2 * AppMargins.medium),
+                      GradientButton(
+                        onPressed: () {},
+                      )
                     ],
+                  ),
+                ),
+                Positioned(
+                  width: width,
+                  bottom: 50,
+                  child: ProgressDot(
+                    isCurrentIndex: true,
                   ),
                 ),
               ],

@@ -4,7 +4,7 @@ import 'package:facerecognition/ui/configuration/configuration.dart';
 import 'package:flutter/material.dart';
 
 class GradientButton extends StatelessWidget {
-  const GradientButton({Key key, this.text, this.onPressed}) : super(key: key);
+  const GradientButton({Key key, this.text, @required this.onPressed}) : super(key: key);
   final String text;
   final Function onPressed;
 

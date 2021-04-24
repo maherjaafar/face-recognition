@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+  static const whiteUi = Colors.white;
   static const orangeUi = Color(0xfff08021);
   static const blueUi = Color(0xff1aa7e0);
   static const blueSkyUi = Color(0xFF20B9D6);
