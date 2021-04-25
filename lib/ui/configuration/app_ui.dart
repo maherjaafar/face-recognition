@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class AppRadius {
   // 65.0
