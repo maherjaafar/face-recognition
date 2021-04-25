@@ -36,6 +36,7 @@ dependencies:
   path: ^1.8.0
   # ----- Fonts -----
   auto_size_text: ^2.1.0
+  google_fonts: ^2.0.0
   # ----- Animations -----
   lottie: ^1.0.1
 
