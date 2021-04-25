@@ -8,7 +8,8 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentFrontImageBase64 = "";
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
-  int _currentPage = 0;
+  int currentPage = 0;
+
   ScanResult scanResult;
 
   Future<void> scan(BuildContext context) async {
@@ -43,7 +44,7 @@ class BlinkIdService with ChangeNotifier {
         fullDocumentFrontImageBase64 = result.fullDocumentFrontImage;
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
-        _currentPage = 1;
+        if (resultString != null) currentPage = 1;
         notifyListeners();
 
         return;
