@@ -52,14 +52,14 @@ class AppStyles {
 
 class AppFontSizes {
   /// 15.0
-  static const verySmallFontSize = 15.0;
+  static const verySmallFontSize = 13.0;
 
   /// 17.0
-  static const smallFontSize = 17.0;
+  static const smallFontSize = 15.0;
 
   /// 19.0
-  static const mediumFontSize = 19.0;
+  static const mediumFontSize = 17.0;
 
   /// 22.0
-  static const bigFontSize = 22.0;
+  static const bigFontSize = 19.0;
 }

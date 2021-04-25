@@ -18,7 +18,7 @@ class ProgressDot extends StatelessWidget {
             ? Container(
                 alignment: Alignment.center,
                 width: 30.0,
-                height: 15.0,
+                height: 10.0,
                 decoration: new BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                   gradient: AppColors.linearGradient,
@@ -28,8 +28,8 @@ class ProgressDot extends StatelessWidget {
               )
             : Container(
                 alignment: Alignment.center,
-                width: 15.0,
-                height: 15.0,
+                width: 10.0,
+                height: 10.0,
                 decoration: new BoxDecoration(
                   color: AppColors.whiteUi,
                   shape: BoxShape.circle,

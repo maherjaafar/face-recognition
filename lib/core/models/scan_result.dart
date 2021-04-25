@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 class ScanResult {
   ScanResult({
+    this.faceImageBase64,
     this.firstName,
     this.lastName,
     this.fullName,
@@ -10,6 +13,7 @@ class ScanResult {
     this.dateOfExpiry,
   });
 
+  String faceImageBase64;
   String firstName;
   String lastName;
   String fullName;

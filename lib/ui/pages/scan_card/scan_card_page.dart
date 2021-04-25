@@ -6,7 +6,7 @@ import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
 import 'package:facerecognition/ui/widgets/app_text.dart';
 import 'package:facerecognition/ui/widgets/gradient_button.dart';
-import 'package:facerecognition/ui/widgets/gradient_divider.dart';
+import 'package:facerecognition/ui/widgets/information_row.dart';
 import 'package:facerecognition/ui/widgets/progress_dots.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -137,26 +137,29 @@ class _ScanCardPageState extends State<ScanCardPage> {
     );
   }
 
-  RichText _buildPrivacyPolicy() {
+  Widget _buildPrivacyPolicy() {
     final primaryStyle = AppStyles.regularTextStyle
         .copyWith(color: AppColors.blackUi, fontSize: AppFontSizes.verySmallFontSize);
     final secondaryStyle = primaryStyle.copyWith(color: AppColors.greenLightUi);
 
-    return RichText(
-      text: TextSpan(
-        text: 'By continuing you agree to Bank’s  and Privacy Policy ',
-        style: primaryStyle,
-        children: <TextSpan>[
-          TextSpan(
-            text: 'Terms and Conditions ',
-            style: secondaryStyle,
-          ),
-          TextSpan(
-            text: 'and ',
-            style: primaryStyle,
-          ),
-          TextSpan(text: 'Privacy Policy ', style: secondaryStyle),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppMargins.xxxSmall),
+      child: RichText(
+        text: TextSpan(
+          text: 'By continuing you agree to Bank’s  and Privacy Policy ',
+          style: primaryStyle,
+          children: <TextSpan>[
+            TextSpan(
+              text: 'Terms and Conditions ',
+              style: secondaryStyle,
+            ),
+            TextSpan(
+              text: 'and ',
+              style: primaryStyle,
+            ),
+            TextSpan(text: 'Privacy Policy ', style: secondaryStyle),
+          ],
+        ),
       ),
     );
   }
@@ -189,7 +192,7 @@ class _ScanCardPageState extends State<ScanCardPage> {
             image: DecorationImage(
               fit: BoxFit.cover,
               image: MemoryImage(
-                Base64Decoder().convert(_blinkIdService.faceImageBase64),
+                Base64Decoder().convert(_blinkIdService.scanResult.faceImageBase64),
               ),
             )));
   }
@@ -246,41 +249,6 @@ class _ScanCardPageState extends State<ScanCardPage> {
         minFontSize: 25,
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
-    );
-  }
-}
-
-class InformationRow extends StatelessWidget {
-  const InformationRow({
-    this.title,
-    this.info,
-  });
-
-  final String title;
-  final String info;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(AppMargins.small),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppTextWidget(
-                title,
-                style: AppStyles.boldTextStyle,
-              ),
-              AppTextWidget(
-                info,
-                style: AppStyles.boldTextStyle,
-              ),
-            ],
-          ),
-        ),
-        GradientDivider(),
-      ],
     );
   }
 }

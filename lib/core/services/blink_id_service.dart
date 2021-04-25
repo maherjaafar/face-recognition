@@ -44,6 +44,10 @@ class BlinkIdService with ChangeNotifier {
         fullDocumentFrontImageBase64 = result.fullDocumentFrontImage;
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
+
+        if (result.faceImage != null && result.faceImage != "")
+          scanResult.faceImageBase64 = result.faceImage;
+
         if (resultString != null) currentPage = 1;
         notifyListeners();
 
@@ -133,14 +137,14 @@ class BlinkIdService with ChangeNotifier {
     if (result.mrzResult.dateOfBirth != null) {
       dateOfBirth = "${result.mrzResult.dateOfBirth.day}/"
           "${result.mrzResult.dateOfBirth.month}/"
-          "${result.mrzResult.dateOfBirth.year}\n";
+          "${result.mrzResult.dateOfBirth.year}";
     }
 
     var dateOfExpiry = "";
     if (result.mrzResult.dateOfExpiry != null) {
       dateOfExpiry = "${result.mrzResult.dateOfExpiry.day}/"
           "${result.mrzResult.dateOfExpiry.month}/"
-          "${result.mrzResult.dateOfExpiry.year}\n";
+          "${result.mrzResult.dateOfExpiry.year}";
     }
     scanResult = ScanResult(
       firstName: result.mrzResult.secondaryId,
