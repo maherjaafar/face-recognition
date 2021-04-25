@@ -1,5 +1,6 @@
 import 'package:blinkid_flutter/microblink_scanner.dart';
 import 'package:blinkid_flutter/recognizers/blink_id_combined_recognizer.dart';
+import 'package:facerecognition/core/models/scan_result.dart';
 import 'package:flutter/material.dart';
 
 class BlinkIdService with ChangeNotifier {
@@ -8,6 +9,7 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
   int _currentPage = 0;
+  ScanResult scanResult;
 
   Future<void> scan(BuildContext context) async {
     String license;
@@ -50,6 +52,20 @@ class BlinkIdService with ChangeNotifier {
   }
 
   String getIdResultString(BlinkIdCombinedRecognizerResult result) {
+    scanResult = ScanResult(
+      firstName: result.firstName,
+      lastName: result.lastName,
+      fullName: result.fullName,
+      documentNumber: result.documentNumber,
+      personalIdNumber: result.personalIdNumber,
+      nationality: result.nationality,
+      dateOfBirth:
+          "${result.dateOfBirth.day}/${result.dateOfBirth.month}/${result.dateOfBirth.year}",
+      dateOfExpiry:
+          "${result.dateOfExpiry.day}/${result.dateOfExpiry.month}/${result.dateOfExpiry.year}",
+    );
+    notifyListeners();
+
     return buildResult(result.firstName, "First name") +
         buildResult(result.lastName, "Last name") +
         buildResult(result.fullName, "Full name") +
@@ -114,23 +130,31 @@ class BlinkIdService with ChangeNotifier {
   String getPassportResultString(BlinkIdCombinedRecognizerResult result) {
     var dateOfBirth = "";
     if (result.mrzResult.dateOfBirth != null) {
-      dateOfBirth = "Date of birth: ${result.mrzResult.dateOfBirth.day}."
-          "${result.mrzResult.dateOfBirth.month}."
+      dateOfBirth = "${result.mrzResult.dateOfBirth.day}/"
+          "${result.mrzResult.dateOfBirth.month}/"
           "${result.mrzResult.dateOfBirth.year}\n";
     }
 
     var dateOfExpiry = "";
     if (result.mrzResult.dateOfExpiry != null) {
-      dateOfExpiry = "Date of expiry: ${result.mrzResult.dateOfExpiry.day}."
-          "${result.mrzResult.dateOfExpiry.month}."
+      dateOfExpiry = "${result.mrzResult.dateOfExpiry.day}/"
+          "${result.mrzResult.dateOfExpiry.month}/"
           "${result.mrzResult.dateOfExpiry.year}\n";
     }
-
+    scanResult = ScanResult(
+      firstName: result.mrzResult.secondaryId,
+      lastName: result.mrzResult.primaryId,
+      documentNumber: result.mrzResult.documentNumber,
+      nationality: result.mrzResult.nationality,
+      dateOfBirth: dateOfBirth,
+      dateOfExpiry: dateOfExpiry,
+    );
     return "First name: ${result.mrzResult.secondaryId}\n"
         "Last name: ${result.mrzResult.primaryId}\n"
         "Document number: ${result.mrzResult.documentNumber}\n"
         "Sex: ${result.mrzResult.gender}\n"
         "$dateOfBirth"
-        "$dateOfExpiry";
+        "$dateOfExpiry"
+        "${result.mrzResult.nationality}";
   }
 }

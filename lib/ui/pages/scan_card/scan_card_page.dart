@@ -1,9 +1,12 @@
 import 'dart:convert';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:facerecognition/core/models/scan_result.dart';
 import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
+import 'package:facerecognition/ui/widgets/app_text.dart';
 import 'package:facerecognition/ui/widgets/gradient_button.dart';
+import 'package:facerecognition/ui/widgets/gradient_divider.dart';
 import 'package:facerecognition/ui/widgets/progress_dots.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -22,54 +25,8 @@ class _ScanCardPageState extends State<ScanCardPage> {
     final screenSize = MediaQuery.of(context).size;
     final width = screenSize.width;
     final height = screenSize.height;
-    final BlinkIdService _blinkIdService = Provider.of<BlinkIdService>(context);
-
-    Widget fullDocumentFrontImage = Container();
-    Widget fullDocumentBackImage = Container();
-    Widget faceImage = Container();
 
     _getCurrentPage(context);
-
-    if (_blinkIdService.fullDocumentFrontImageBase64 != null &&
-        _blinkIdService.fullDocumentFrontImageBase64 != "") {
-      fullDocumentFrontImage = Column(
-        children: <Widget>[
-          Text("Document Front Image:"),
-          Image.memory(
-            Base64Decoder().convert(_blinkIdService.fullDocumentFrontImageBase64),
-            height: 180,
-            width: 350,
-          )
-        ],
-      );
-    }
-
-    if (_blinkIdService.fullDocumentBackImageBase64 != null &&
-        _blinkIdService.fullDocumentBackImageBase64 != "") {
-      fullDocumentBackImage = Column(
-        children: <Widget>[
-          Text("Document Back Image:"),
-          Image.memory(
-            Base64Decoder().convert(_blinkIdService.fullDocumentBackImageBase64),
-            height: 180,
-            width: 350,
-          )
-        ],
-      );
-    }
-
-    if (_blinkIdService.faceImageBase64 != null && _blinkIdService.faceImageBase64 != "") {
-      faceImage = Column(
-        children: <Widget>[
-          Text("Face Image:"),
-          Image.memory(
-            Base64Decoder().convert(_blinkIdService.faceImageBase64),
-            height: 150,
-            width: 100,
-          )
-        ],
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +47,28 @@ class _ScanCardPageState extends State<ScanCardPage> {
             SizedBox(height: 30),
             _buildPageTitle(title: 'ID Card Scan'),
             SizedBox(height: 30),
-            _buildBody(width, height, context)
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                        color: AppColors.greyBackgroundUi,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(AppRadius.radiusCircular),
+                          topRight: Radius.circular(AppRadius.radiusCircular),
+                        )),
+                  ),
+                  _buildBody(width, height, context),
+                  Positioned(
+                    width: width,
+                    bottom: 50,
+                    child: ProgressDot(
+                      isCurrentIndex: true,
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
@@ -122,65 +100,98 @@ class _ScanCardPageState extends State<ScanCardPage> {
     }
   }
 
-  Expanded _buildAboutMePage(double width, double height, BuildContext context) {
+  Widget _buildAboutMePage(double width, double height, BuildContext context) {
     final _blinkIdService = Provider.of<BlinkIdService>(context);
-    return Expanded(
-        child: Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: AppColors.greyBackgroundUi,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(AppRadius.radiusCircular),
-                topRight: Radius.circular(AppRadius.radiusCircular),
-              )),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppMargins.xxxLarge),
-          child: Column(
+    final scanResult = _blinkIdService.scanResult;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppMargins.xxxLarge),
+      child: Column(
+        children: [
+          SizedBox(height: AppMargins.xxxLarge),
+          Row(
             children: [
-              // SizedBox(height: AppMargins.xxxLarge),
-              Container(
-                width: width,
-                height: height * 0.2,
-                decoration: BoxDecoration(
-                    color: AppColors.transparent,
-                    borderRadius: BorderRadius.all(Radius.circular(AppRadius.radiusCircular))),
-                child: Row(children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Image.memory(
-                      Base64Decoder().convert(_blinkIdService.faceImageBase64),
-                      height: 150,
-                      width: 100,
-                    ),
-                  ),
-                  SizedBox(width: AppMargins.xxLarge),
-                  Column(children: [
-                    AutoSizeText(_blinkIdService.resultString),
-                  ])
-                ]),
-              ),
-              SizedBox(height: 2 * AppMargins.medium),
-              GradientButton(
-                onPressed: () {
-                  setState(() {
-                    _currentPage = 2;
-                  });
-                },
-              )
+              _buildFaceImage(_blinkIdService),
+              SizedBox(width: AppMargins.xxLarge),
+              _buildNameAndDocumentNumber(scanResult),
             ],
           ),
-        ),
-        Positioned(
-          width: width,
-          bottom: 50,
-          child: ProgressDot(
-            isCurrentIndex: true,
+          SizedBox(height: AppMargins.xxxLarge),
+          InformationRow(
+            title: 'Nationality',
+            info: scanResult.nationality,
           ),
+          SizedBox(height: AppMargins.xxxLarge),
+          InformationRow(
+            title: 'Expiration Date',
+            info: scanResult.dateOfExpiry,
+          ),
+          SizedBox(height: 70),
+          _buildPrivacyPolicy(),
+          SizedBox(height: 2 * AppMargins.medium),
+          GradientButton(
+            text: 'Next',
+            onPressed: () {},
+          )
+        ],
+      ),
+    );
+  }
+
+  RichText _buildPrivacyPolicy() {
+    final primaryStyle = AppStyles.regularTextStyle
+        .copyWith(color: AppColors.blackUi, fontSize: AppFontSizes.verySmallFontSize);
+    final secondaryStyle = primaryStyle.copyWith(color: AppColors.greenLightUi);
+
+    return RichText(
+      text: TextSpan(
+        text: 'By continuing you agree to Bank’s  and Privacy Policy ',
+        style: primaryStyle,
+        children: <TextSpan>[
+          TextSpan(
+            text: 'Terms and Conditions ',
+            style: secondaryStyle,
+          ),
+          TextSpan(
+            text: 'and ',
+            style: primaryStyle,
+          ),
+          TextSpan(text: 'Privacy Policy ', style: secondaryStyle),
+        ],
+      ),
+    );
+  }
+
+  Column _buildNameAndDocumentNumber(ScanResult scanResult) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppTextWidget(
+          '${scanResult.firstName} ${scanResult.lastName}',
+          minFontSize: AppFontSizes.bigFontSize,
+          style: AppStyles.boldTextStyle,
+        ),
+        AppTextWidget(
+          "${scanResult.documentNumber}",
+          style: AppStyles.mediumTextStyle,
+          minFontSize: AppFontSizes.mediumFontSize,
         ),
       ],
-    ));
+    );
+  }
+
+  Widget _buildFaceImage(BlinkIdService _blinkIdService) {
+    return Container(
+        width: 100.0,
+        height: 100.0,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: MemoryImage(
+                Base64Decoder().convert(_blinkIdService.faceImageBase64),
+              ),
+            )));
   }
 
   Expanded _buildScanCardPage(double width, double height, BuildContext context) {
@@ -235,6 +246,41 @@ class _ScanCardPageState extends State<ScanCardPage> {
         minFontSize: 25,
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
+    );
+  }
+}
+
+class InformationRow extends StatelessWidget {
+  const InformationRow({
+    this.title,
+    this.info,
+  });
+
+  final String title;
+  final String info;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(AppMargins.small),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppTextWidget(
+                title,
+                style: AppStyles.boldTextStyle,
+              ),
+              AppTextWidget(
+                info,
+                style: AppStyles.boldTextStyle,
+              ),
+            ],
+          ),
+        ),
+        GradientDivider(),
+      ],
     );
   }
 }
