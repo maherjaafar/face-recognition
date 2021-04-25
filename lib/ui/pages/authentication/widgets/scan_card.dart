@@ -10,10 +10,9 @@ import 'package:facerecognition/core/services/ml_vision_service.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
 import 'package:facerecognition/ui/pages/authentication/widgets/scan_button.dart';
 import 'package:facerecognition/ui/widgets/FacePainter.dart';
+import 'package:facerecognition/ui/widgets/app_text.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 class AppScanCard extends StatefulWidget {
   AppScanCard({this.cameraDescription});
@@ -263,7 +262,7 @@ class _AppScanCardState extends State<AppScanCard> {
   Container _buildPageTitle({@required String title}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30),
-      child: AutoSizeText(
+      child: AppTextWidget(
         title,
         maxFontSize: 30,
         minFontSize: 25,

@@ -3,6 +3,7 @@ import 'package:facerecognition/core/database/database.dart';
 import 'package:facerecognition/core/models/user.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
+import 'package:facerecognition/ui/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 
 class ScanButton extends StatefulWidget {
@@ -71,7 +72,7 @@ class _ScanButtonState extends State<ScanButton> {
                 stops: [0.0, 1.0],
                 tileMode: TileMode.clamp),
             borderRadius: BorderRadius.all(Radius.circular(36))),
-        child: AutoSizeText(
+        child: AppTextWidget(
           'Scan',
           style: TextStyle(
             fontWeight: FontWeight.bold,
