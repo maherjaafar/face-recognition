@@ -23,7 +23,7 @@ class GradientButton extends StatelessWidget {
             gradient: AppColors.linearGradient,
             borderRadius: BorderRadius.all(Radius.circular(36))),
         child: AutoSizeText(
-          'Scan',
+          text ?? 'Scan',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
