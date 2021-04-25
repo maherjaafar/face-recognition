@@ -1,3 +1,6 @@
+import 'package:facerecognition/ui/configuration/configuration.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppRadius {
   // 65.0
@@ -31,4 +34,32 @@ class AppMargins {
 
   /// 30.0
   static const xxxLarge = 30.0;
+}
+
+class AppStyles {
+  /// Poppins
+  static final defaultFont = GoogleFonts.poppins();
+
+  /// Regular
+  static final regularTextStyle = defaultFont.copyWith(fontWeight: FontWeight.normal);
+
+  /// Medium
+  static final mediumTextStyle = defaultFont.copyWith(fontWeight: FontWeight.w600);
+
+  /// Bold
+  static final boldTextStyle = defaultFont.copyWith(fontWeight: FontWeight.bold);
+}
+
+class AppFontSizes {
+  /// 15.0
+  static const verySmallFontSize = 15.0;
+
+  /// 17.0
+  static const smallFontSize = 17.0;
+
+  /// 19.0
+  static const mediumFontSize = 19.0;
+
+  /// 22.0
+  static const bigFontSize = 22.0;
 }
