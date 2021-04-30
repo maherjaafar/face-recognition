@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 class ScanResult {
   ScanResult({
     this.faceImageBase64,
