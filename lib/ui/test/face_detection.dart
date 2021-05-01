@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class FacePage extends StatefulWidget {
   @override
@@ -13,13 +13,15 @@ class _FacePageState extends State<FacePage> {
   File _imageFile;
   List<Face> _faces;
 
+  ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
+
   _getImageAndDetectFaces() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
-    final imageFile = File(pickedFile.path);
+    final imageFile = await _imageFileDatabase.readFile();
+
     final image = FirebaseVisionImage.fromFile(imageFile);
-    final faceDetector = FirebaseVision.instance.faceDetector(FaceDetectorOptions(
-      mode: FaceDetectorMode.accurate,
-    ));
+    final faceDetector = FirebaseVision.instance.faceDetector(
+      FaceDetectorOptions(mode: FaceDetectorMode.accurate),
+    );
     final faces = await faceDetector.processImage(image);
     if (mounted) {
       setState(() {

@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:facerecognition/core/database/database.dart';
 import 'package:facerecognition/core/models/user.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
