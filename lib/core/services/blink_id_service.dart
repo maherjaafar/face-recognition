@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:blinkid_flutter/microblink_scanner.dart';
 import 'package:blinkid_flutter/recognizers/blink_id_combined_recognizer.dart';
 import 'package:facerecognition/core/models/scan_result.dart';
+import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:flutter/material.dart';
 
 class BlinkIdService with ChangeNotifier {
@@ -8,7 +11,12 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentFrontImageBase64 = "";
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
+
+  File imageFromFile;
+
   int currentPage = 0;
+
+  ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
 
   ScanResult scanResult;
 
@@ -38,8 +46,17 @@ class BlinkIdService with ChangeNotifier {
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
 
-        if (result.faceImage != null && result.faceImage != "")
+        if (result.faceImage != null && result.faceImage != "") {
           scanResult.faceImageBase64 = result.faceImage;
+
+          await _imageFileDatabase.saveImageFile(result.faceImage);
+          await _imageFileDatabase.readImageFile();
+
+          final imageFile = await _imageFileDatabase.readFile();
+
+          imageFromFile = imageFile;
+          notifyListeners();
+        }
 
         if (resultString != null) currentPage = 1;
         notifyListeners();
