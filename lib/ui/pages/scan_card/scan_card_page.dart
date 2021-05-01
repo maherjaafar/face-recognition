@@ -183,6 +183,9 @@ class _ScanCardPageState extends State<ScanCardPage> {
           GradientButton(
             text: 'Next',
             onPressed: () {},
+          ),
+          Container(
+            child: Image.file(Provider.of<BlinkIdService>(context).imageFromFile),
           )
         ],
       ),
