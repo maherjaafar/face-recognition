@@ -100,6 +100,58 @@ class _ScanCardPageState extends State<ScanCardPage> {
     }
   }
 
+  Widget _buildScanCardPage(
+    double width,
+    double height,
+    BuildContext context,
+  ) {
+    return Expanded(
+        child: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+              color: AppColors.greyBackgroundUi,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(AppRadius.radiusCircular),
+                topRight: Radius.circular(AppRadius.radiusCircular),
+              )),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppMargins.xxxLarge),
+          child: Column(
+            children: [
+              SizedBox(height: AppMargins.xxxLarge),
+              Container(
+                width: width,
+                height: height * 0.3,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(AppRadius.radiusCircular),
+                    )),
+                child: Lottie.asset('assets/scan_card.json'),
+              ),
+              SizedBox(height: 2 * AppMargins.medium),
+              GradientButton(
+                onPressed: () async => await Provider.of<BlinkIdService>(
+                  context,
+                  listen: false,
+                ).scan(context),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          width: width,
+          bottom: 50,
+          child: ProgressDot(
+            isCurrentIndex: true,
+          ),
+        ),
+      ],
+    ));
+  }
+
   Widget _buildAboutMePage(double width, double height, BuildContext context) {
     final _blinkIdService = Provider.of<BlinkIdService>(context);
     final scanResult = _blinkIdService.scanResult;
@@ -195,49 +247,6 @@ class _ScanCardPageState extends State<ScanCardPage> {
                 Base64Decoder().convert(_blinkIdService.scanResult.faceImageBase64),
               ),
             )));
-  }
-
-  Expanded _buildScanCardPage(double width, double height, BuildContext context) {
-    return Expanded(
-        child: Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: AppColors.greyBackgroundUi,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(AppRadius.radiusCircular),
-                topRight: Radius.circular(AppRadius.radiusCircular),
-              )),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppMargins.xxxLarge),
-          child: Column(
-            children: [
-              SizedBox(height: AppMargins.xxxLarge),
-              Container(
-                width: width,
-                height: height * 0.3,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(AppRadius.radiusCircular))),
-                child: Lottie.asset('assets/scan_card.json'),
-              ),
-              SizedBox(height: 2 * AppMargins.medium),
-              GradientButton(
-                onPressed: () => Provider.of<BlinkIdService>(context, listen: false).scan(context),
-              )
-            ],
-          ),
-        ),
-        Positioned(
-          width: width,
-          bottom: 50,
-          child: ProgressDot(
-            isCurrentIndex: true,
-          ),
-        ),
-      ],
-    ));
   }
 
   Container _buildPageTitle({@required String title}) {
