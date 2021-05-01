@@ -32,7 +32,7 @@ dependencies:
   camera: ^0.8.1
   image: ^3.0.2
   # ----- Path -----
-  path_provider:
+  path_provider: ^2.0.1
   path: ^1.8.0
   # ----- Fonts -----
   auto_size_text: ^2.1.0
