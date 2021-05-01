@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:facerecognition/core/database/database.dart';
+import 'package:facerecognition/core/services/blink_id_service.dart';
+import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tflite;
 import 'package:image/image.dart' as imglib;
 
@@ -13,10 +18,11 @@ class FaceNetService {
   factory FaceNetService() {
     return _faceNetService;
   }
+
   // singleton boilerplate
   FaceNetService._internal();
 
-  DataBaseService _dataBaseService = DataBaseService();
+  ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
 
   tflite.Interpreter _interpreter;
 
@@ -24,6 +30,9 @@ class FaceNetService {
 
   List _predictedData;
   List get predictedData => this._predictedData;
+
+  List _predictedIdData;
+  List get predictedIdData => this._predictedIdData;
 
   //  saved users data
   dynamic data = {};
@@ -39,7 +48,8 @@ class FaceNetService {
               tflite.TfLiteGpuInferencePriority.auto));
 
       var interpreterOptions = tflite.InterpreterOptions()..addDelegate(gpuDelegateV2);
-      this._interpreter = await tflite.Interpreter.fromAsset('mobilefacenet.tflite', options: interpreterOptions);
+      this._interpreter =
+          await tflite.Interpreter.fromAsset('mobilefacenet.tflite', options: interpreterOptions);
       print('model loaded successfully');
     } catch (e) {
       print('Failed to load model.');
@@ -62,10 +72,41 @@ class FaceNetService {
     this._predictedData = List.from(output);
   }
 
+  Future<void> setCurrentPredictionFromFile(File file, Face face) async {
+    /// crops the face from the image and transforms it to an array of data
+    final bytes = await file.readAsBytes();
+    var decodedImage = await decodeImageFromList(bytes);
+
+    double x = face.boundingBox.left - 10.0;
+    double y = face.boundingBox.top - 10.0;
+    double w = face.boundingBox.width + 10.0;
+    double h = face.boundingBox.height + 10.0;
+    imglib.Image croppedImage = imglib.copyCrop(
+        imglib.Image.fromBytes(decodedImage.width, decodedImage.height, bytes),
+        x.round(),
+        y.round(),
+        w.round(),
+        h.round());
+
+    imglib.Image img = imglib.copyResizeCropSquare(croppedImage, 112);
+    Float32List input = imageToByteListFloat32(img);
+
+    /// then reshapes input and ouput to model format 🧑‍🔧
+    input = input.reshape([1, 112, 112, 3]);
+    List output = List(1 * 192).reshape([1, 192]);
+
+    /// runs and transforms the data 🤖
+    this._interpreter.run(input, output);
+    output = output.reshape([192]);
+
+    this._predictedIdData = List.from(output);
+  }
+
   /// takes the predicted data previously saved and do inference
-  String predict() {
+  Future<bool> predict(BuildContext context) async {
     /// search closer user prediction if exists
-    return _searchResult(this._predictedData);
+    final result = await _searchResult(this._predictedData, context);
+    return result;
   }
 
   /// _preProess: crops the image to be more easy
@@ -142,31 +183,44 @@ class FaceNetService {
 
   /// searchs the result in the DDBB (this function should be performed by Backend)
   /// [predictedData]: Array that represents the face by the MobileFaceNet model
-  String _searchResult(List predictedData) {
-    /// loads 'database' 🙄
-    data = _dataBaseService.db;
+  Future<bool> _searchResult(List predictedData, BuildContext context) async {
+    final fileData = await _imageFileDatabase.readFile();
 
-    /// if no faces saved
-    if (data.length == 0) return null;
+    print("Image from file ${fileData.path}");
+
+    final image = FirebaseVisionImage.fromFile(fileData);
+    final faceDetector = FirebaseVision.instance.faceDetector(
+      FaceDetectorOptions(mode: FaceDetectorMode.accurate),
+    );
+    final faces = await faceDetector.processImage(image);
+
+    final face = faces[0];
+
+    await setCurrentPredictionFromFile(fileData, face);
+
+    // /// if no faces saved
+    // if (predictedIdData.length == 0) return null;
     double minDist = 999;
     double currDist = 0.0;
-    String predRes;
+    bool predRes;
 
-    /// search the closest result 👓
-    for (String label in data.keys) {
-      currDist = _euclideanDistance(data[label], predictedData);
-      if (currDist <= threshold && currDist < minDist) {
-        minDist = currDist;
-        predRes = label;
-      }
+    /// search the  result 👓
+    currDist = _euclideanDistance(predictedIdData, predictedData);
+    if (currDist <= threshold && currDist < minDist) {
+      minDist = currDist;
+      print('***********************');
+      print('Current distance is $currDist');
+      print('***********************');
+
+      predRes = true;
     }
-    return predRes;
+    print(predRes);
+    return predRes ?? false;
   }
 
   /// Adds the power of the difference between each point
   /// then computes the sqrt of the result 📐
   double _euclideanDistance(List e1, List e2) {
-
     double sum = 0.0;
     for (int i = 0; i < e1.length; i++) {
       sum += pow((e1[i] - e2[i]), 2);
@@ -176,5 +230,9 @@ class FaceNetService {
 
   void setPredictedData(value) {
     this._predictedData = value;
+  }
+
+  void setPredictedIdData(value) {
+    this._predictedIdData = value;
   }
 }
