@@ -84,40 +84,44 @@ class _ScanCardPageState extends State<ScanCardPage> {
         elevation: 0,
         backgroundColor: AppColors.transparent,
       ),
-      body: Container(
-        height: height,
-        width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 30),
-            _buildPageTitle(title: 'ID Card Scan'),
-            SizedBox(height: 30),
-            Expanded(
-              child: Stack(
+      body: !loading
+          ? Container(
+              height: height,
+              width: width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        color: AppColors.greyBackgroundUi,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(AppRadius.radiusCircular),
-                          topRight: Radius.circular(AppRadius.radiusCircular),
-                        )),
-                  ),
-                  _buildBody(width, height, context),
-                  Positioned(
-                    width: width,
-                    bottom: 50,
-                    child: ProgressDot(
-                      isCurrentIndex: true,
+                  SizedBox(height: 30),
+                  _buildPageTitle(title: 'ID Card Scan'),
+                  SizedBox(height: 30),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: AppColors.greyBackgroundUi,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(AppRadius.radiusCircular),
+                                topRight: Radius.circular(AppRadius.radiusCircular),
+                              )),
+                        ),
+                        _buildBody(width, height, context),
+                        Positioned(
+                          width: width,
+                          bottom: 50,
+                          child: ProgressDot(
+                            isCurrentIndex: true,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
             )
-          ],
-        ),
-      ),
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
     );
   }
 
@@ -129,7 +133,7 @@ class _ScanCardPageState extends State<ScanCardPage> {
       });
   }
 
-  _buildBody(width, height, context) {
+  _buildBody(width, height, BuildContext context) {
     switch (_currentPage) {
       case 0:
         return _buildScanCardPage(width, height, context);
@@ -138,7 +142,7 @@ class _ScanCardPageState extends State<ScanCardPage> {
         return _buildAboutMePage(width, height, context);
         break;
       case 2:
-        return _buildAboutMePage(width, height, context);
+        return Container();
         break;
       default:
         return Container();

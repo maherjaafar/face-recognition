@@ -52,9 +52,7 @@ class CameraService {
 
   /// takes the picture and saves it in the given path 📸
   Future<void> takePicture(String path) async {
-    final result = await _cameraController.takePicture();
-    await result.saveTo(path);
-    return;
+    await _cameraController.takePicture(path);
   }
 
   /// returns the image size 📏

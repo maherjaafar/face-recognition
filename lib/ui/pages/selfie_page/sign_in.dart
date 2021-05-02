@@ -43,6 +43,7 @@ class SignInState extends State<SignIn> {
   String imagePath;
   Size imageSize;
   Face faceDetected;
+  bool isFaceDetected = false;
 
   @override
   void initState() {
@@ -113,21 +114,14 @@ class SignInState extends State<SignIn> {
   }
 
   /// handles the button pressed event
-  Future<void> onShot(BuildContext context) async {
+  Future<void> onShot() async {
     if (faceDetected == null) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Text('No face detected!'),
-            );
-          });
-
-      return false;
+      print('No face detected!');
     } else {
       imagePath = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
 
       _saving = true;
+      print('saving');
 
       await Future.delayed(Duration(milliseconds: 500));
       await _cameraService.cameraController.stopImageStream();
@@ -137,9 +131,9 @@ class SignInState extends State<SignIn> {
       setState(() {
         _bottomSheetVisible = true;
         pictureTaked = true;
+        isFaceDetected = true;
+        print('face detected');
       });
-
-      return true;
     }
   }
 
@@ -168,7 +162,7 @@ class SignInState extends State<SignIn> {
                   child: OverflowBox(
                     alignment: Alignment.center,
                     child: FittedBox(
-                      fit: BoxFit.fitHeight,
+                      fit: BoxFit.contain,
                       child: Container(
                         width: width,
                         height: width / _cameraService.cameraController.value.aspectRatio,
@@ -196,9 +190,7 @@ class SignInState extends State<SignIn> {
       floatingActionButton: !_bottomSheetVisible
           ? AuthActionButton(
               _initializeControllerFuture,
-              onPressed: () async {
-                await onShot(context);
-              },
+              onPressed: onShot,
               isLogin: true,
             )
           : Container(),

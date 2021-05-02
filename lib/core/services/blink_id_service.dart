@@ -52,10 +52,11 @@ class BlinkIdService with ChangeNotifier {
           await _imageFileDatabase.saveImageFile(result.faceImage);
           await _imageFileDatabase.readImageFile();
 
-          final imageFile = await _imageFileDatabase.readFile();
-
-          imageFromFile = imageFile;
-          notifyListeners();
+          await _imageFileDatabase.readFile().then((imageFile) {
+            imageFromFile = imageFile;
+            print('success');
+            notifyListeners();
+          });
         }
 
         if (resultString != null) currentPage = 1;
