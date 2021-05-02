@@ -244,7 +244,7 @@ class _ScanCardPageState extends State<ScanCardPage> {
             },
           ),
           Container(
-            child: Image.file(Provider.of<BlinkIdService>(context).imageFromFile),
+            child: Image.file(Provider.of<BlinkIdService>(context).scanResult.imageFromFile),
           )
         ],
       ),

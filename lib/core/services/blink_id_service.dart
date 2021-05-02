@@ -11,8 +11,7 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentFrontImageBase64 = "";
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
-
-  File imageFromFile;
+  //File imageFromFile;
 
   int currentPage = 0;
 
@@ -53,7 +52,7 @@ class BlinkIdService with ChangeNotifier {
           await _imageFileDatabase.readImageFile();
 
           await _imageFileDatabase.readFile().then((imageFile) {
-            imageFromFile = imageFile;
+            scanResult.imageFromFile = imageFile;
             print('success');
             notifyListeners();
           });
