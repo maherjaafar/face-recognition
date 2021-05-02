@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:facerecognition/core/services/camera.service.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
@@ -28,7 +30,6 @@ class MLVisionService {
   }
 
   Future<List<Face>> getFacesFromImage(CameraImage image) async {
-
     /// preprocess the image  🧑🏻‍🔧
     FirebaseVisionImageMetadata _firebaseImageMetadata = FirebaseVisionImageMetadata(
       rotation: _cameraService.cameraRotation,
@@ -48,6 +49,15 @@ class MLVisionService {
     /// Transform the image input for the _faceDetector 🎯
     FirebaseVisionImage _firebaseVisionImage =
         FirebaseVisionImage.fromBytes(image.planes[0].bytes, _firebaseImageMetadata);
+
+    /// proces the image and makes inference 🤖
+    List<Face> faces = await this._faceDetector.processImage(_firebaseVisionImage);
+    return faces;
+  }
+
+  Future<List<Face>> getFacesFromFile(File file) async {
+    /// Transform the image input for the _faceDetector 🎯
+    FirebaseVisionImage _firebaseVisionImage = FirebaseVisionImage.fromFile(file);
 
     /// proces the image and makes inference 🤖
     List<Face> faces = await this._faceDetector.processImage(_firebaseVisionImage);

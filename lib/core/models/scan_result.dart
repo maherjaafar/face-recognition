@@ -1,8 +1,9 @@
-import 'dart:typed_data';
+import 'dart:io';
 
 class ScanResult {
   ScanResult({
     this.faceImageBase64,
+    this.imageFromFile,
     this.firstName,
     this.lastName,
     this.fullName,
@@ -14,6 +15,7 @@ class ScanResult {
   });
 
   String faceImageBase64;
+  File imageFromFile;
   String firstName;
   String lastName;
   String fullName;

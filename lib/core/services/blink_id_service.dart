@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:blinkid_flutter/microblink_scanner.dart';
 import 'package:blinkid_flutter/recognizers/blink_id_combined_recognizer.dart';
 import 'package:facerecognition/core/models/scan_result.dart';
+import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:flutter/material.dart';
 
 class BlinkIdService with ChangeNotifier {
@@ -8,19 +11,16 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentFrontImageBase64 = "";
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
+  //File imageFromFile;
+
   int currentPage = 0;
+
+  ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
 
   ScanResult scanResult;
 
   Future<void> scan(BuildContext context) async {
-    String license;
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      license =
-          "sRwAAAEaY29tLnlvdW5lcy5mYWNlcmVjb2duaXRpb27j0CkE8HK25Y46ih8gV3Ok61BqbqzlN2RqyMS6BVS9wxYbhof9G7gB7Jb0H210LejjjJHmC9j0KcZSe20TOOND2A3/zBUoIQvw0r0FoKBjqSNCT/UsdKpCydhFf1SYvLhOnja3/a3T5+F9gJ6dAqC0lKv3r6YL09kwgz1hSWYixBqpg3X/oamtmXbcotyphgWTIm8h7qsbEnh/MN1XJ/LUV51/8vVvVjwFtMY1M3hM73+wX4QXoJuDMB7WjX8Hz++WK5d9EKYKFA3OU4QaZfLbyGdtOwT31R+mvYgGSIYukDJLINvBolOqBuDB+Ne9+ZxtyfAg5A5orKMM7cquvUqJ+Mk=";
-    } else if (Theme.of(context).platform == TargetPlatform.android) {
-      license =
-          "sRwAAAAaY29tLnlvdW5lcy5mYWNlcmVjb2duaXRpb262G2JbCmXLARjeYi2rK2l6jyiArPDroYt3ZVJCz2Txgf19SD1vwIOUzIiVKV1lWc2FQUWRgkGA7/BbP+yo70sbxg2f1RAqgSzLj1ZcZ5SLgtif3GrjRuJLpo7sjpsmU5JWOoCJbsjFZo5B+lKZvwliTNaArTc1DWMfnQeDXYQNgmef2VeEfNroNMHJvuKx1DC5MOeTkd8fy+A6qbhgZNvCz/kM8RqGGr7EEaz2gs/iqrEU9Pb25WnbFHg6yXl8CqQ4Z9qgenelCmb81qAE84iP9tWCt9KqX+8yR5+Jexd6HAQnni2plt5fm4W5CZ3uz2D7ySU2f7ptkAZG1SAXPc7fgNg=";
-    }
+    String license = _getSpecificPlatformLicense(context);
 
     var idRecognizer = BlinkIdCombinedRecognizer();
     idRecognizer.returnFullDocumentImage = true;
@@ -45,14 +45,32 @@ class BlinkIdService with ChangeNotifier {
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
 
-        if (result.faceImage != null && result.faceImage != "")
+        if (result.faceImage != null && result.faceImage != "") {
           scanResult.faceImageBase64 = result.faceImage;
+
+          await _imageFileDatabase.saveImageFile(result.faceImage);
+          await _imageFileDatabase.readImageFile();
+
+          await _imageFileDatabase.readFile().then((imageFile) {
+            scanResult.imageFromFile = imageFile;
+            print('success');
+            notifyListeners();
+          });
+        }
 
         if (resultString != null) currentPage = 1;
         notifyListeners();
 
         return;
       }
+    }
+  }
+
+  _getSpecificPlatformLicense(BuildContext context) {
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      return "sRwAAAEaY29tLnlvdW5lcy5mYWNlcmVjb2duaXRpb27j0CkE8HK25Y46ih8gV3Ok61BqbqzlN2RqyMS6BVS9wxYbhof9G7gB7Jb0H210LejjjJHmC9j0KcZSe20TOOND2A3/zBUoIQvw0r0FoKBjqSNCT/UsdKpCydhFf1SYvLhOnja3/a3T5+F9gJ6dAqC0lKv3r6YL09kwgz1hSWYixBqpg3X/oamtmXbcotyphgWTIm8h7qsbEnh/MN1XJ/LUV51/8vVvVjwFtMY1M3hM73+wX4QXoJuDMB7WjX8Hz++WK5d9EKYKFA3OU4QaZfLbyGdtOwT31R+mvYgGSIYukDJLINvBolOqBuDB+Ne9+ZxtyfAg5A5orKMM7cquvUqJ+Mk=";
+    } else if (Theme.of(context).platform == TargetPlatform.android) {
+      return "sRwAAAAaY29tLnlvdW5lcy5mYWNlcmVjb2duaXRpb262G2JbCmXLARjeYi2rK2l6jyiArPDroYt3ZVJCz2Txgf19SD1vwIOUzIiVKV1lWc2FQUWRgkGA7/BbP+yo70sbxg2f1RAqgSzLj1ZcZ5SLgtif3GrjRuJLpo7sjpsmU5JWOoCJbsjFZo5B+lKZvwliTNaArTc1DWMfnQeDXYQNgmef2VeEfNroNMHJvuKx1DC5MOeTkd8fy+A6qbhgZNvCz/kM8RqGGr7EEaz2gs/iqrEU9Pb25WnbFHg6yXl8CqQ4Z9qgenelCmb81qAE84iP9tWCt9KqX+8yR5+Jexd6HAQnni2plt5fm4W5CZ3uz2D7ySU2f7ptkAZG1SAXPc7fgNg=";
     }
   }
 
