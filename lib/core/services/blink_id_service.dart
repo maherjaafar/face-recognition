@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:blinkid_flutter/microblink_scanner.dart';
 import 'package:blinkid_flutter/recognizers/blink_id_combined_recognizer.dart';
 import 'package:facerecognition/core/models/scan_result.dart';
@@ -11,7 +9,7 @@ class BlinkIdService with ChangeNotifier {
   String fullDocumentFrontImageBase64 = "";
   String fullDocumentBackImageBase64 = "";
   String faceImageBase64 = "";
-  //File imageFromFile;
+  bool isDetected = false;
 
   int currentPage = 0;
 
@@ -35,12 +33,11 @@ class BlinkIdService with ChangeNotifier {
     for (var result in results) {
       if (result is BlinkIdCombinedRecognizerResult) {
         if (result.mrzResult.documentType == MrtdDocumentType.Passport) {
-          resultString = getPassportResultString(result);
+          getPassportResult(result);
         } else {
-          resultString = getIdResultString(result);
+          getIdResult(result);
         }
 
-        resultString = resultString;
         fullDocumentFrontImageBase64 = result.fullDocumentFrontImage;
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
@@ -53,12 +50,11 @@ class BlinkIdService with ChangeNotifier {
 
           await _imageFileDatabase.readFile().then((imageFile) {
             scanResult.imageFromFile = imageFile;
-            print('success');
             notifyListeners();
           });
         }
 
-        if (resultString != null) currentPage = 1;
+        if (isDetected) currentPage = 1;
         notifyListeners();
 
         return;
@@ -74,7 +70,11 @@ class BlinkIdService with ChangeNotifier {
     }
   }
 
-  String getIdResultString(BlinkIdCombinedRecognizerResult result) {
+  String _getDateFormat(Date date) {
+    return date != null ? "${date.day}/${date.month}/${date.year}" : "N/A";
+  }
+
+  void getIdResult(BlinkIdCombinedRecognizerResult result) {
     scanResult = ScanResult(
       firstName: result.firstName,
       lastName: result.lastName,
@@ -82,87 +82,23 @@ class BlinkIdService with ChangeNotifier {
       documentNumber: result.documentNumber,
       personalIdNumber: result.personalIdNumber,
       nationality: result.nationality,
-      dateOfBirth:
-          "${result.dateOfBirth.day}/${result.dateOfBirth.month}/${result.dateOfBirth.year}",
-      dateOfExpiry:
-          "${result.dateOfExpiry.day}/${result.dateOfExpiry.month}/${result.dateOfExpiry.year}",
+      dateOfBirth: _getDateFormat(result.dateOfBirth),
+      dateOfExpiry: _getDateFormat(result.dateOfExpiry),
     );
+
+    isDetected = true;
     notifyListeners();
-
-    return buildResult(result.firstName, "First name") +
-        buildResult(result.lastName, "Last name") +
-        buildResult(result.fullName, "Full name") +
-        buildResult(result.localizedName, "Localized name") +
-        buildResult(result.additionalNameInformation, "Additional name info") +
-        buildResult(result.address, "Address") +
-        buildResult(result.additionalAddressInformation, "Additional address info") +
-        buildResult(result.documentNumber, "Document number") +
-        buildResult(result.documentAdditionalNumber, "Additional document number") +
-        buildResult(result.sex, "Sex") +
-        buildResult(result.issuingAuthority, "Issuing authority") +
-        buildResult(result.nationality, "Nationality") +
-        buildDateResult(result.dateOfBirth, "Date of birth") +
-        buildIntResult(result.age, "Age") +
-        buildDateResult(result.dateOfIssue, "Date of issue") +
-        buildDateResult(result.dateOfExpiry, "Date of expiry") +
-        buildResult(result.dateOfExpiryPermanent.toString(), "Date of expiry permanent") +
-        buildResult(result.maritalStatus, "Martial status") +
-        buildResult(result.personalIdNumber, "Personal Id Number") +
-        buildResult(result.profession, "Profession") +
-        buildResult(result.race, "Race") +
-        buildResult(result.religion, "Religion") +
-        buildResult(result.residentialStatus, "Residential Status") +
-        buildDriverLicenceResult(result.driverLicenseDetailedInfo);
   }
 
-  String buildResult(String result, String propertyName) {
-    if (result == null || result.isEmpty) {
-      return "";
-    }
-
-    return propertyName + ": " + result + "\n";
-  }
-
-  String buildDateResult(Date result, String propertyName) {
-    if (result == null || result.year == 0) {
-      return "";
-    }
-
-    return buildResult("${result.day}.${result.month}.${result.year}", propertyName);
-  }
-
-  String buildIntResult(int result, String propertyName) {
-    if (result < 0) {
-      return "";
-    }
-
-    return buildResult(result.toString(), propertyName);
-  }
-
-  String buildDriverLicenceResult(DriverLicenseDetailedInfo result) {
-    if (result == null) {
-      return "";
-    }
-
-    return buildResult(result.restrictions, "Restrictions") +
-        buildResult(result.endorsements, "Endorsements") +
-        buildResult(result.vehicleClass, "Vehicle class") +
-        buildResult(result.conditions, "Conditions");
-  }
-
-  String getPassportResultString(BlinkIdCombinedRecognizerResult result) {
+  void getPassportResult(BlinkIdCombinedRecognizerResult result) {
     var dateOfBirth = "";
     if (result.mrzResult.dateOfBirth != null) {
-      dateOfBirth = "${result.mrzResult.dateOfBirth.day}/"
-          "${result.mrzResult.dateOfBirth.month}/"
-          "${result.mrzResult.dateOfBirth.year}";
+      dateOfBirth = _getDateFormat(result.mrzResult.dateOfBirth);
     }
 
     var dateOfExpiry = "";
     if (result.mrzResult.dateOfExpiry != null) {
-      dateOfExpiry = "${result.mrzResult.dateOfExpiry.day}/"
-          "${result.mrzResult.dateOfExpiry.month}/"
-          "${result.mrzResult.dateOfExpiry.year}";
+      dateOfExpiry = _getDateFormat(result.mrzResult.dateOfExpiry);
     }
     scanResult = ScanResult(
       firstName: result.mrzResult.secondaryId,
@@ -172,12 +108,8 @@ class BlinkIdService with ChangeNotifier {
       dateOfBirth: dateOfBirth,
       dateOfExpiry: dateOfExpiry,
     );
-    return "First name: ${result.mrzResult.secondaryId}\n"
-        "Last name: ${result.mrzResult.primaryId}\n"
-        "Document number: ${result.mrzResult.documentNumber}\n"
-        "Sex: ${result.mrzResult.gender}\n"
-        "$dateOfBirth"
-        "$dateOfExpiry"
-        "${result.mrzResult.nationality}";
+
+    isDetected = true;
+    notifyListeners();
   }
 }
