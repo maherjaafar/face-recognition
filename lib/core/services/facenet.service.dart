@@ -63,7 +63,7 @@ class FaceNetService {
 
     /// then reshapes input and ouput to model format 🧑‍🔧
     input = input.reshape([1, 112, 112, 3]);
-    List output = List(1 * 192).reshape([1, 192]);
+    List output = List.filled(1 * 192, [], growable: true).reshape([1, 192]);
     print(' set current prediction 2');
 
     /// runs and transforms the data 🤖
@@ -92,7 +92,7 @@ class FaceNetService {
 
     /// then reshapes input and ouput to model format 🧑‍🔧
     input = input.reshape([1, 112, 112, 3]);
-    List output = List(1 * 192).reshape([1, 192]);
+    List output = List.filled(1 * 192, [], growable: true).reshape([1, 192]);
 
     /// runs and transforms the data 🤖
     this._interpreter.run(input, output);
