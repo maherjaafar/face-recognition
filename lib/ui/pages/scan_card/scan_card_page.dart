@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:camera/camera.dart';
-import 'package:facerecognition/core/database/database.dart';
 import 'package:facerecognition/core/models/scan_result.dart';
 import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
@@ -28,7 +27,6 @@ class _ScanCardPageState extends State<ScanCardPage> {
   // Services injection
   FaceNetService _faceNetService = FaceNetService();
   MLVisionService _mlVisionService = MLVisionService();
-  DataBaseService _dataBaseService = DataBaseService();
 
   CameraDescription cameraDescription;
   bool loading = false;
@@ -53,7 +51,6 @@ class _ScanCardPageState extends State<ScanCardPage> {
 
     // start the services
     await _faceNetService.loadModel();
-    await _dataBaseService.loadDB();
     _mlVisionService.initialize();
 
     _setLoading(false);
