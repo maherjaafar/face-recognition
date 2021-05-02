@@ -1,4 +1,5 @@
 import 'package:facerecognition/core/services/facenet.service.dart';
+import 'package:facerecognition/ui/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 
 class AuthActionButton extends StatefulWidget {
@@ -23,9 +24,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      label: widget.isLogin ? Text('Sign in') : Text('Sign up'),
-      icon: Icon(Icons.camera_alt),
+    return GradientButton(
+      text: 'Take picture',
       // Provide an onPressed callback.
       onPressed: () async {
         try {
@@ -42,37 +42,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
                 // this.predictedUser = userAndPass;
               });
           }
-          Scaffold.of(context).showBottomSheet((context) => signSheet(context));
         } catch (e) {
           // If an error occurs, log the error to the console.
           print(e);
         }
       },
-    );
-  }
-
-  signSheet(context) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      height: 300,
-      child: Column(
-        children: [
-          widget.isLogin && predictedUser == true
-              ? Container(
-                  child: Text(
-                    'Welcome back, ' + 'Si chbeeb' + '! 😄',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              : widget.isLogin
-                  ? Container(
-                      child: Text(
-                      'User not found 😞',
-                      style: TextStyle(fontSize: 20),
-                    ))
-                  : Container(),
-        ],
-      ),
     );
   }
 
