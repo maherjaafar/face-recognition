@@ -16,8 +16,6 @@ import 'package:lottie/lottie.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'about_me_page.dart';
-
 class VerifyPhotoPage extends StatefulWidget {
   final CameraDescription cameraDescription;
 
@@ -45,7 +43,6 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
 
   // switchs when the user press the camera
   bool _saving = false;
-  bool _bottomSheetVisible = false;
 
   String imagePath;
   Size imageSize;
@@ -136,7 +133,6 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
       await _cameraService.takePicture(imagePath);
 
       setState(() {
-        _bottomSheetVisible = true;
         isPictureTaken = true;
         isFaceDetected = true;
         _isTakingSelfie = false;
@@ -229,14 +225,11 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
                       ),
                       SizedBox(height: 2 * AppMargins.medium),
                       GradientButton(
-                          text: !isPictureTaken ? 'Take selfie' : 'Retake selfie',
-                          onPressed: () {
-                            setState(() {
-                              _isTakingSelfie = true;
-                              isPictureTaken = false;
-                              imagePath = null;
-                            });
-                          }),
+                        text: !isPictureTaken ? 'Take selfie' : 'Next',
+                        onPressed: () {
+                          debugPrint("next button pressed");
+                        },
+                      ),
                       SizedBox(height: AppMargins.xxxLarge),
                       if (imagePath != null)
                         Container(
