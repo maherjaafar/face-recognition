@@ -227,7 +227,12 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
                       GradientButton(
                         text: !isPictureTaken ? 'Take selfie' : 'Next',
                         onPressed: () {
-                          debugPrint("next button pressed");
+                          if (isPictureTaken)
+                            debugPrint("next button pressed");
+                          else
+                            setState(() {
+                              _isTakingSelfie = true;
+                            });
                         },
                       ),
                       SizedBox(height: AppMargins.xxxLarge),
