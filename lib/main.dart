@@ -1,5 +1,5 @@
 import 'package:facerecognition/core/services/blink_id_service.dart';
-import 'package:facerecognition/ui/pages/scan_card/scan_card_page.dart';
+import 'package:facerecognition/ui/pages/scan_card_flow/scan_card_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';

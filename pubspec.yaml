@@ -18,10 +18,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  # ----- BlinkId -----
+  # ----- ID scanner -----
   blinkid_flutter: ^5.11.0
-  # ----- Utils -----
-  image_picker: ^0.7.4
   # ----- State management -----
   provider: ^5.0.0
   # ----- Firebase -----
@@ -32,6 +30,7 @@ dependencies:
   camera: ^0.5.8+5
   image: ^3.0.2
   image_size_getter: ^1.0.0
+  image_picker: ^0.7.4
   # ----- Path -----
   path_provider: ^2.0.1
   path: ^1.8.0
@@ -59,6 +58,7 @@ flutter:
   assets:
     - assets/mobilefacenet.tflite
     - assets/scan_card.json
+    - assets/take_selfie.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

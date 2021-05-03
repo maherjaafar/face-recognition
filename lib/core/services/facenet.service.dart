@@ -1,13 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'package:flutter/material.dart';
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tflite;
 import 'package:image/image.dart' as imglib;
 
@@ -54,41 +50,23 @@ class FaceNetService {
     }
   }
 
-  setCurrentPrediction(CameraImage cameraImage, Face face) {
-    print('Begin set current prediction');
-
+  void setCurrentPrediction(CameraImage cameraImage, Face face) {
     /// crops the face from the image and transforms it to an array of data
     List input = _preProcess(cameraImage, face);
-    print(' set current prediction 1');
 
     /// then reshapes input and ouput to model format 🧑‍🔧
     input = input.reshape([1, 112, 112, 3]);
     List output = List(1 * 192).reshape([1, 192]);
-    print(' set current prediction 2');
 
     /// runs and transforms the data 🤖
     this._interpreter.run(input, output);
     output = output.reshape([192]);
-    print(' set current prediction 3');
 
     this._predictedData = List.from(output);
-    print(' set current prediction 4');
   }
 
   Future<void> setCurrentPredictionFromFile(File file, Face face) async {
-    /// crops the face from the image and transforms it to an array of data
-    final bytes = await file.readAsBytes();
-    print('bytes are $bytes');
-
-    double x = face.boundingBox.left - 10.0;
-    double y = face.boundingBox.top - 10.0;
-    double w = face.boundingBox.width + 10.0;
-    double h = face.boundingBox.height + 10.0;
-    imglib.Image croppedImage =
-        imglib.copyCrop(imglib.decodeImage(bytes), x.round(), y.round(), w.round(), h.round());
-
-    imglib.Image img = imglib.copyResizeCropSquare(croppedImage, 112);
-    List input = imageToByteListFloat32(img);
+    List input = await _preProcessIdFile(file, face);
 
     /// then reshapes input and ouput to model format 🧑‍🔧
     input = input.reshape([1, 112, 112, 3]);
@@ -99,6 +77,28 @@ class FaceNetService {
     output = output.reshape([192]);
 
     this._predictedIdData = List.from(output);
+  }
+
+  /// _preProess: crops the image to be more easy
+  /// to detect and transforms it to model input.
+  /// [file]: current file image
+  /// [face]: face detected
+  Future<List> _preProcessIdFile(File file, Face face) async {
+    /// Read image as array of int
+    final bytes = await file.readAsBytes();
+
+    double x = face.boundingBox.left - 10.0;
+    double y = face.boundingBox.top - 10.0;
+    double w = face.boundingBox.width + 10.0;
+    double h = face.boundingBox.height + 10.0;
+    imglib.Image croppedImage =
+        imglib.copyCrop(imglib.decodeImage(bytes), x.round(), y.round(), w.round(), h.round());
+
+    imglib.Image img = imglib.copyResizeCropSquare(croppedImage, 112);
+
+    // transforms the cropped face to array data
+    Float32List imageAsList = imageToByteListFloat32(img);
+    return imageAsList;
   }
 
   /// takes the predicted data previously saved and do inference
@@ -180,37 +180,32 @@ class FaceNetService {
     return convertedBytes.buffer.asFloat32List();
   }
 
-  /// searchs the result in the DDBB (this function should be performed by Backend)
-  /// [predictedData]: Array that represents the face by the MobileFaceNet model
-  Future<void> _searchResult(List predictedData) async {
-    final fileData = await _imageFileDatabase.readFile();
-
-    final image = FirebaseVisionImage.fromFile(fileData);
+  Future<Face> _getFaceFromFile(File file) async {
+    final image = FirebaseVisionImage.fromFile(file);
     final faceDetector = FirebaseVision.instance.faceDetector(
       FaceDetectorOptions(mode: FaceDetectorMode.accurate),
     );
     final faces = await faceDetector.processImage(image);
 
-    final face = faces[0];
+    return faces[0];
+  }
+
+  /// [predictedData]: Array that represents the face by the MobileFaceNet model
+  Future<void> _searchResult(List predictedData) async {
+    final fileData = await _imageFileDatabase.readFile();
+    Face face = await _getFaceFromFile(fileData);
 
     await setCurrentPredictionFromFile(fileData, face);
 
     // /// if no faces saved
     // if (predictedIdData == null) return null;
-    double minDist = 999;
     double currDist = 0.0;
-    double predRes = currDist;
 
     /// search the  result 👓
-    currDist = _euclideanDistance(this._predictedIdData, predictedData);
-    if (currDist <= threshold && currDist < minDist) {
-      minDist = currDist;
-      print('***********************');
-      print('Current distance is $currDist');
-      print('***********************');
-      predRes = currDist;
-    }
-    print(predRes);
+    currDist = _euclideanDistance(this._predictedIdData, this._predictedData);
+    print('***********************');
+    print('Current distance is $currDist');
+    print('***********************');
   }
 
   /// Adds the power of the difference between each point
