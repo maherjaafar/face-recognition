@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -14,7 +15,11 @@ class ImageFileDatabase {
 
   Future<void> saveImageFile(String base64String) async {
     File imageFile = File(await _getImageFilePath()); // 1
-    await imageFile.writeAsBytes(Base64Decoder().convert(base64String)); // 2
+    final base64Image = Base64Decoder().convert(base64String);
+    await imageFile.writeAsBytes(base64Image); // 2
+
+    final result = await ImageGallerySaver.saveImage(base64Image, quality: 100, name: "CIN");
+    print(result);
   }
 
   Future<String> readImageFile() async {
