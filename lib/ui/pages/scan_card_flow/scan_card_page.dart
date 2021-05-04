@@ -141,11 +141,13 @@ class _ScanCardPageState extends State<ScanCardPage> {
               context,
               listen: false,
             ).scan(context).then(
-                  (value) => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AboutMePage(cameraDescription: cameraDescription),
-                      )),
+                  (response) => response == false
+                      ? print('Failed recognizing Id')
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AboutMePage(cameraDescription: cameraDescription),
+                          )),
                 );
           }),
         ],

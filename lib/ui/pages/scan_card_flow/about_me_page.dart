@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:facerecognition/core/models/scan_result.dart';
 import 'package:facerecognition/core/services/blink_id_service.dart';
+import 'package:facerecognition/core/services/image_file_database.dart';
 
 import 'package:facerecognition/ui/configuration/configuration.dart';
 import 'package:facerecognition/ui/pages/scan_card_flow/verify_photo_page.dart';
@@ -25,18 +26,13 @@ class AboutMePage extends StatefulWidget {
 }
 
 class _AboutMePageState extends State<AboutMePage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final width = screenSize.width;
     final height = screenSize.height;
-
-    //_getCurrentPage(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -163,12 +159,16 @@ class _AboutMePageState extends State<AboutMePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextWidget(
-          '${scanResult.firstName} ${scanResult.lastName}',
+          scanResult.firstName != null && scanResult.lastName != null
+              ? '${scanResult.firstName} ${scanResult.lastName}'
+              : scanResult.fullName != null
+                  ? '${scanResult.fullName}'
+                  : 'N/A',
           minFontSize: AppFontSizes.bigFontSize,
           style: AppStyles.boldTextStyle,
         ),
         AppTextWidget(
-          "${scanResult.documentNumber}",
+          scanResult.documentNumber != null ? "${scanResult.documentNumber}" : 'N/A',
           style: AppStyles.mediumTextStyle,
           minFontSize: AppFontSizes.mediumFontSize,
         ),
@@ -184,11 +184,27 @@ class _AboutMePageState extends State<AboutMePage> {
         borderRadius: BorderRadius.all(Radius.circular(20.0)),
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: MemoryImage(
-            Base64Decoder().convert(_blinkIdService.scanResult.aboutMeImage),
-          ),
+          image: getImage(_blinkIdService),
         ),
       ),
     );
+  }
+
+  getImage(BlinkIdService _blinkIdService) {
+    return _blinkIdService.faceImageBase64 != null
+        ? MemoryImage(
+            base64Decode(
+              _blinkIdService.faceImageBase64,
+            ),
+          )
+        : _blinkIdService.fullDocumentFrontImageBase64 != null
+            ? MemoryImage(
+                base64Decode(
+                  _blinkIdService.fullDocumentFrontImageBase64,
+                ),
+              )
+            : Container(
+                child: Text('Image not detected'),
+              );
   }
 }

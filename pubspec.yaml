@@ -61,6 +61,7 @@ flutter:
     - assets/mobilefacenet.tflite
     - assets/scan_card.json
     - assets/take_selfie.json
+    - assets/scan_successful.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

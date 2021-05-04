@@ -6,7 +6,9 @@ import 'package:facerecognition/core/services/camera.service.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
 import 'package:facerecognition/core/services/ml_vision_service.dart';
 import 'package:facerecognition/ui/configuration/configuration.dart';
+import 'package:facerecognition/ui/pages/scan_card_flow/widgets/camera_page.dart';
 import 'package:facerecognition/ui/widgets/FacePainter.dart';
+import 'package:facerecognition/ui/widgets/app_text.dart';
 import 'package:facerecognition/ui/widgets/auth_action_button.dart';
 import 'package:facerecognition/ui/widgets/gradient_button.dart';
 import 'package:facerecognition/ui/widgets/page_title.dart';
@@ -162,26 +164,12 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (isPictureTaken) {
-              return _buildTakeSelfiePage(context, width, height);
-            } else {
-              return _isTakingSelfie
-                  ? _buildCameraWidget(context, width, height)
-                  : _buildTakeSelfiePage(context, width, height);
-            }
+            return _buildTakeSelfiePage(context, width, height);
           } else {
             return Center(child: CircularProgressIndicator());
           }
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _isTakingSelfie
-          ? AuthActionButton(
-              _initializeControllerFuture,
-              onPressed: onShot,
-              isLogin: true,
-            )
-          : null,
     );
   }
 
@@ -227,18 +215,25 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
                       ),
                       SizedBox(height: 2 * AppMargins.medium),
                       GradientButton(
-                        text: !isPictureTaken ? 'Take selfie' : 'Next',
-                        onPressed: () {
-                          if (isPictureTaken) {
-                            debugPrint("next button pressed");
-                            debugPrint(
-                                "Final distance is ${Provider.of<BlinkIdService>(context, listen: false).comparisonResult}");
-                          } else
-                            setState(() {
-                              _isTakingSelfie = true;
-                            });
-                        },
-                      ),
+                          text: !isPictureTaken ? 'Take selfie' : 'Next',
+                          onPressed: () async {
+                            if (isPictureTaken) {
+                              debugPrint("next button pressed");
+                              debugPrint(
+                                  "Final distance is ${Provider.of<BlinkIdService>(context, listen: false).comparisonResult}");
+                            } else {
+                              final double distanceResult = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CameraPage(
+                                            cameraDescription: widget.cameraDescription,
+                                          )));
+
+                              if (distanceResult.round() < 1.1) {
+                                await _showAlert(context);
+                              }
+                            }
+                          }),
                       SizedBox(height: AppMargins.xxxLarge),
                       if (imagePath != null)
                         Container(
@@ -269,35 +264,63 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
     );
   }
 
-  _buildCameraWidget(
-    BuildContext context,
-    double width,
-    double height,
-  ) {
-    return Transform.scale(
-      scale: 1.0,
-      child: AspectRatio(
-        aspectRatio: MediaQuery.of(context).size.aspectRatio,
-        child: OverflowBox(
-          alignment: Alignment.center,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Container(
-              width: width,
-              height: width / _cameraService.cameraController.value.aspectRatio,
-              child: Stack(
-                fit: StackFit.expand,
-                children: <Widget>[
-                  CameraPreview(_cameraService.cameraController),
-                  CustomPaint(
-                    painter: FacePainter(face: faceDetected, imageSize: imageSize),
-                  )
-                ],
+  // set up the AlertDialog
+  Future<void> _showAlert(BuildContext context) async {
+    final dialog = AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+      content: new Container(
+        width: 260.0,
+        height: 230.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Lottie.asset('assets/scan_successful.json'),
               ),
             ),
-          ),
+
+            // dialog centre
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: AppTextWidget('Scan Successful'),
+                  ),
+                ],
+              ),
+              flex: 2,
+            ),
+
+            // dialog bottom
+            GradientButton(
+                text: "Next",
+                onPressed: () {
+                  print("Next");
+                  Navigator.pop(context);
+                }),
+          ],
         ),
       ),
+    );
+
+    // show the dialog
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
     );
   }
 }
