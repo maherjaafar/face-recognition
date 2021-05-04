@@ -11,7 +11,7 @@ class BlinkIdService with ChangeNotifier {
   String faceImageBase64 = "";
   bool isDetected = false;
 
-  int currentPage = 0;
+  double comparisonResult;
 
   ImageFileDatabase _imageFileDatabase = ImageFileDatabase();
 
@@ -45,7 +45,8 @@ class BlinkIdService with ChangeNotifier {
         if (result.faceImage != null && result.faceImage != "") {
           scanResult.faceImageBase64 = result.faceImage;
 
-          await _imageFileDatabase.saveImageFile(result.faceImage);
+          await _imageFileDatabase.saveImageFile(
+              result.faceImage, fullDocumentFrontImageBase64, fullDocumentBackImageBase64);
           await _imageFileDatabase.readImageFile();
 
           await _imageFileDatabase.readFile().then((imageFile) {
@@ -53,9 +54,6 @@ class BlinkIdService with ChangeNotifier {
             notifyListeners();
           });
         }
-
-        if (isDetected) currentPage = 1;
-        notifyListeners();
 
         return;
       }

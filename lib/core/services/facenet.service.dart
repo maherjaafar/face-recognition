@@ -2,8 +2,10 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
+import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/core/services/image_file_database.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:provider/provider.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tflite;
 import 'package:image/image.dart' as imglib;
 
@@ -102,9 +104,9 @@ class FaceNetService {
   }
 
   /// takes the predicted data previously saved and do inference
-  Future<void> predict() async {
+  Future<double> predict() async {
     /// search closer user prediction if exists
-    await _searchResult(this._predictedData);
+    return await _searchResult(this._predictedData);
   }
 
   /// _preProess: crops the image to be more easy
@@ -191,7 +193,7 @@ class FaceNetService {
   }
 
   /// [predictedData]: Array that represents the face by the MobileFaceNet model
-  Future<void> _searchResult(List predictedData) async {
+  Future<double> _searchResult(List predictedData) async {
     final fileData = await _imageFileDatabase.readFile();
     Face face = await _getFaceFromFile(fileData);
 
@@ -206,6 +208,7 @@ class FaceNetService {
     print('***********************');
     print('Current distance is $currDist');
     print('***********************');
+    return currDist;
   }
 
   /// Adds the power of the difference between each point

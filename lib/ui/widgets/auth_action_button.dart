@@ -1,6 +1,8 @@
+import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
 import 'package:facerecognition/ui/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthActionButton extends StatefulWidget {
   AuthActionButton(this._initializeControllerFuture,
@@ -18,8 +20,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
 
   bool predictedUser;
 
-  Future<void> _predictUser() async {
-    await _faceNetService.predict();
+  Future<double> _predictUser() async {
+    return await _faceNetService.predict();
   }
 
   @override
@@ -35,12 +37,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           await widget.onPressed();
 
           if (widget.isLogin) {
-            await _predictUser();
-            // print(userAndPass);
-            if (mounted)
-              setState(() {
-                // this.predictedUser = userAndPass;
-              });
+            final distance = await _predictUser();
+            Provider.of<BlinkIdService>(context, listen: false).comparisonResult = distance;
           }
         } catch (e) {
           // If an error occurs, log the error to the console.

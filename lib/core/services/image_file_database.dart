@@ -13,13 +13,21 @@ class ImageFileDatabase {
     return imageFilePath;
   }
 
-  Future<void> saveImageFile(String base64String) async {
+  Future<void> saveImageFile(String base64String, String frontImage, String backImage) async {
     File imageFile = File(await _getImageFilePath()); // 1
     final base64Image = Base64Decoder().convert(base64String);
     await imageFile.writeAsBytes(base64Image); // 2
 
     final result = await ImageGallerySaver.saveImage(base64Image, quality: 100, name: "CIN");
     print(result);
+
+    if (frontImage != null && frontImage != "")
+      await ImageGallerySaver.saveImage(Base64Decoder().convert(frontImage),
+          quality: 100, name: "front");
+
+    if (backImage != null && backImage != "")
+      await ImageGallerySaver.saveImage(Base64Decoder().convert(backImage),
+          quality: 100, name: "back");
   }
 
   Future<String> readImageFile() async {

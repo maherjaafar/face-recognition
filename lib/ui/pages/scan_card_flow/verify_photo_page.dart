@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:facerecognition/core/services/blink_id_service.dart';
 import 'package:facerecognition/core/services/camera.service.dart';
 import 'package:facerecognition/core/services/facenet.service.dart';
 import 'package:facerecognition/core/services/ml_vision_service.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class VerifyPhotoPage extends StatefulWidget {
   final CameraDescription cameraDescription;
@@ -227,9 +229,11 @@ class VerifyPhotoPageState extends State<VerifyPhotoPage> {
                       GradientButton(
                         text: !isPictureTaken ? 'Take selfie' : 'Next',
                         onPressed: () {
-                          if (isPictureTaken)
+                          if (isPictureTaken) {
                             debugPrint("next button pressed");
-                          else
+                            debugPrint(
+                                "Final distance is ${Provider.of<BlinkIdService>(context, listen: false).comparisonResult}");
+                          } else
                             setState(() {
                               _isTakingSelfie = true;
                             });
