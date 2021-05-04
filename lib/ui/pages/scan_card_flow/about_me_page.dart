@@ -185,7 +185,7 @@ class _AboutMePageState extends State<AboutMePage> {
         image: DecorationImage(
           fit: BoxFit.cover,
           image: MemoryImage(
-            Base64Decoder().convert(_blinkIdService.scanResult.faceImageBase64),
+            Base64Decoder().convert(_blinkIdService.scanResult.aboutMeImage),
           ),
         ),
       ),
