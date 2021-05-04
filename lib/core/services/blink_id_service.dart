@@ -42,11 +42,13 @@ class BlinkIdService with ChangeNotifier {
         fullDocumentBackImageBase64 = result.fullDocumentBackImage;
         faceImageBase64 = result.faceImage;
 
-        if (result.faceImage != null && result.faceImage != "") {
-          scanResult.faceImageBase64 = result.faceImage;
+        if (result.fullDocumentFrontImage != null && result.fullDocumentFrontImage != "") {
+          scanResult.faceImageBase64 = result.fullDocumentFrontImage;
+          scanResult.aboutMeImage = result.faceImage;
 
-          await _imageFileDatabase.saveImageFile(
-              result.faceImage, fullDocumentFrontImageBase64, fullDocumentBackImageBase64);
+          await _imageFileDatabase.saveImageFile(result.fullDocumentFrontImage,
+              fullDocumentFrontImageBase64, fullDocumentBackImageBase64);
+
           await _imageFileDatabase.readImageFile();
 
           await _imageFileDatabase.readFile().then((imageFile) {
