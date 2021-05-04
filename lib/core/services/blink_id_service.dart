@@ -17,7 +17,7 @@ class BlinkIdService with ChangeNotifier {
 
   ScanResult scanResult;
 
-  Future<void> scan(BuildContext context) async {
+  Future<bool> scan(BuildContext context) async {
     String license = _getSpecificPlatformLicense(context);
 
     var idRecognizer = BlinkIdCombinedRecognizer();
@@ -29,8 +29,9 @@ class BlinkIdService with ChangeNotifier {
     var results = await MicroblinkScanner.scanWithCamera(
         RecognizerCollection([idRecognizer]), settings, license);
 
-    if (results.length == 0) return;
-    for (var result in results) {
+    if (results.isEmpty) return false;
+
+    for (RecognizerResult result in results) {
       if (result is BlinkIdCombinedRecognizerResult) {
         if (result.mrzResult.documentType == MrtdDocumentType.Passport) {
           getPassportResult(result);
@@ -46,8 +47,8 @@ class BlinkIdService with ChangeNotifier {
           scanResult.faceImageBase64 = result.fullDocumentFrontImage;
           scanResult.aboutMeImage = result.faceImage;
 
-          await _imageFileDatabase.saveImageFile(result.fullDocumentFrontImage,
-              fullDocumentFrontImageBase64, fullDocumentBackImageBase64);
+          if (result.fullDocumentFrontImage != null && result.fullDocumentFrontImage != "")
+            await _imageFileDatabase.saveImageFile(result.fullDocumentFrontImage);
 
           await _imageFileDatabase.readImageFile();
 
@@ -56,10 +57,10 @@ class BlinkIdService with ChangeNotifier {
             notifyListeners();
           });
         }
-
-        return;
       }
     }
+
+    return true;
   }
 
   _getSpecificPlatformLicense(BuildContext context) {
@@ -76,12 +77,12 @@ class BlinkIdService with ChangeNotifier {
 
   void getIdResult(BlinkIdCombinedRecognizerResult result) {
     scanResult = ScanResult(
-      firstName: result.firstName,
-      lastName: result.lastName,
-      fullName: result.fullName,
-      documentNumber: result.documentNumber,
-      personalIdNumber: result.personalIdNumber,
-      nationality: result.nationality,
+      firstName: result.firstName ?? "N/A",
+      lastName: result.lastName ?? "N/A",
+      fullName: result.fullName ?? "N/A",
+      documentNumber: result.documentNumber ?? "N/A",
+      personalIdNumber: result.personalIdNumber ?? "N/A",
+      nationality: result.nationality ?? "N/A",
       dateOfBirth: _getDateFormat(result.dateOfBirth),
       dateOfExpiry: _getDateFormat(result.dateOfExpiry),
     );
