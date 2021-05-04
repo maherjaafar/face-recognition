@@ -177,17 +177,24 @@ class _AboutMePageState extends State<AboutMePage> {
   }
 
   Widget _buildFaceImage(BlinkIdService _blinkIdService) {
-    return Container(
-      width: 100.0,
-      height: 100.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: getImage(_blinkIdService),
-        ),
-      ),
-    );
+    return getImage(_blinkIdService) != null
+        ? Container(
+            width: 100.0,
+            height: 100.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: getImage(_blinkIdService),
+              ),
+            ),
+          )
+        : Container(
+            child: AppTextWidget(
+            "No image",
+            maxFontSize: 12,
+            style: TextStyle(color: Colors.black),
+          ));
   }
 
   getImage(BlinkIdService _blinkIdService) {
@@ -203,8 +210,6 @@ class _AboutMePageState extends State<AboutMePage> {
                   _blinkIdService.fullDocumentFrontImageBase64,
                 ),
               )
-            : Container(
-                child: Text('Image not detected'),
-              );
+            : null;
   }
 }
