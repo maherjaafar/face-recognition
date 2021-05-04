@@ -3,6 +3,7 @@ import 'dart:io';
 class ScanResult {
   ScanResult({
     this.faceImageBase64,
+    this.aboutMeImage,
     this.imageFromFile,
     this.firstName,
     this.lastName,
@@ -15,6 +16,7 @@ class ScanResult {
   });
 
   String faceImageBase64;
+  String aboutMeImage;
   File imageFromFile;
   String firstName;
   String lastName;
