@@ -91,22 +91,15 @@ class BlinkIdService with ChangeNotifier {
   }
 
   void getPassportResult(BlinkIdCombinedRecognizerResult result) {
-    var dateOfBirth = "";
-    if (result.mrzResult.dateOfBirth != null) {
-      dateOfBirth = _getDateFormat(result.mrzResult.dateOfBirth);
-    }
-
-    var dateOfExpiry = "";
-    if (result.mrzResult.dateOfExpiry != null) {
-      dateOfExpiry = _getDateFormat(result.mrzResult.dateOfExpiry);
-    }
     scanResult = ScanResult(
-      firstName: result.mrzResult.secondaryId,
-      lastName: result.mrzResult.primaryId,
-      documentNumber: result.mrzResult.documentNumber,
-      nationality: result.mrzResult.nationality,
-      dateOfBirth: dateOfBirth,
-      dateOfExpiry: dateOfExpiry,
+      firstName: result.firstName ?? "N/A",
+      lastName: result.lastName ?? "N/A",
+      fullName: result.fullName ?? "N/A",
+      documentNumber: result.documentNumber ?? "N/A",
+      personalIdNumber: result.personalIdNumber ?? "N/A",
+      nationality: result.nationality ?? "N/A",
+      dateOfBirth: _getDateFormat(result.dateOfBirth) ?? "N/A",
+      dateOfExpiry: _getDateFormat(result.dateOfExpiry) ?? "N/A",
     );
 
     isDetected = true;
