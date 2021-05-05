@@ -190,11 +190,15 @@ class _AboutMePageState extends State<AboutMePage> {
             ),
           )
         : Container(
+            width: 100.0,
+            height: 100.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            ),
             child: AppTextWidget(
-            "No image",
-            maxFontSize: 12,
-            style: TextStyle(color: Colors.black),
-          ));
+              "No image",
+              style: TextStyle(color: Colors.black),
+            ));
   }
 
   getImage(BlinkIdService _blinkIdService) {
